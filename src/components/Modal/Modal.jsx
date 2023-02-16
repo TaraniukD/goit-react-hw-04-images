@@ -15,7 +15,6 @@ export function Modal ({ largeImageURL, tags, toggleModal }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
     
-
    const handleKeyDown = e => {
         if (e.code === 'Escape') {
             toggleModal();
@@ -37,7 +36,6 @@ export function Modal ({ largeImageURL, tags, toggleModal }) {
         modalRoot
         );
     }
-
 
 Modal.propTypes = {
     largeImageURL: PropTypes.string.isRequired,
