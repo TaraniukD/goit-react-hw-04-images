@@ -1,36 +1,35 @@
-import { Component } from "react";
+import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import PropTypes from 'prop-types';
 
-
 const modalRoot = document.querySelector('#modal-root')
 
-export class Modal extends Component { 
-    
-    componentDidMount() {
-        window.addEventListener('keydown', this.handleKeyDown);
-    }
-    componentWillUnmount() {
-        window.removeEventListener('keydown', this.handleKeyDown)
-    }
+export function Modal ({ largeImageURL, tags, toggleModal }) { 
 
-    handleKeyDown = e => {
+    useEffect(() => {
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+    
+
+   const handleKeyDown = e => {
         if (e.code === 'Escape') {
-            this.props.toggleModal();
+            toggleModal();
           }
     }
 
-    handleBackdropClock = e => {
+   const handleBackdropClock = e => {
         if (e.currentTarget === e.target) {
-            this.props.toggleModal();
+            toggleModal();
         }
     }
 
-    render() {
-        const { largeImageURL, tags} = this.props;
-
         return createPortal(
-        <div className="Overlay" onClick={this.handleBackdropClock}>
+        <div className="Overlay" onClick={handleBackdropClock}>
         <div className="Modal">
             <img src={largeImageURL} alt={tags} className="ModalImg"/>
         </div>
@@ -38,7 +37,7 @@ export class Modal extends Component {
         modalRoot
         );
     }
-}
+
 
 Modal.propTypes = {
     largeImageURL: PropTypes.string.isRequired,
