@@ -1,46 +1,31 @@
-import {Component} from "react";
+import { useState } from "react";
 import Notiflix from 'notiflix';
 import PropTypes from 'prop-types';
 
-export class Searchbar extends Component {
-
-    state = {
-        name: '',
-        page: 1,
-    };
-    
-    componentDidUpdate(prevProps, prevState) {
-if (prevState.page !== this.state.page || prevState.name !== this.state.name) {
+export function Searchbar({onSubmit}) {
   
-}
-    }
-
-    searchImage = e => {
-        this.setState({name: e.currentTarget.value.toLowerCase()});
+  const [name, setName] = useState('');
+ 
+   const searchImage = e => {
+        setName( e.currentTarget.value.toLowerCase() );
     };
 
-    imageSubmit = e => {
+   const imageSubmit = e => {
         e.preventDefault();
-
-        const  { name } = this.state;
-        const { onSubmit } = this.props;
 
         if (name.trim() === '') {
             Notiflix.Notify.info('Enter the name of the image!');
             return;
         }
 
-        onSubmit(name);
-        this.setState({name: ''});
+      onSubmit(name);
+        setName('');
         
     };
 
-render() {
-  const { name } = this.state;
-
     return (
         <header className="Searchbar">
-          <form className="SearchForm" onSubmit={this.imageSubmit}>
+          <form className="SearchForm" onSubmit={imageSubmit}>
             <input
               className="SearchForm-input"
               type="text"
@@ -48,7 +33,7 @@ render() {
               autoFocus
               placeholder="Search images and photos"
               value={name}
-              onChange={this.searchImage}
+              onChange={searchImage}
             />
               <button type="submit" className="SearchForm-button">
               <span className="Button-label">Search</span>
@@ -56,7 +41,6 @@ render() {
           </form>
         </header>
             )
-       }
 }
 
 Searchbar.propTypes = {
