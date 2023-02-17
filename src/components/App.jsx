@@ -1,4 +1,4 @@
-import { Component } from "react";
+import { useState, useEffect } from "react";
 import Notiflix from 'notiflix';
 import { fetchImages } from "Api/Api";
 import { Searchbar } from "components/Searchbar/Searchbar";
@@ -8,66 +8,56 @@ import { Button } from "components/Button/Button";
 
 import './styles.css';
 
-export class App extends Component {
-  state = {
-    name: '',
-    images: [],
-    page: 1,
-    totalHits: 0,
-    loading: false,
-  };
+export function App () {
+  const [ name, setName ] = useState('');
+  const [ images, setImages ] = useState([]);
+  const [ page, setPage ] = useState(1);
+  const [ totalHits, setTotalHits ] = useState(0);
+  const [ loading, setLoading ] = useState(false);
 
-  async componentDidUpdate(prevProps, prevState) {
-    const { name, page } = this.state;
+   useEffect(() => {
+    if (!name) {
+      return;
+    }
 
-    if (prevState.name !== name || prevState.page !== page) {
-      try {
-        this.setState({ loading: true });
+    setLoading(true);
 
+      const apiData = async () => {
         const { totalHits, hits } = await fetchImages(name, page);
         
         if (totalHits === 0) {
-          Notiflix.Notify.info('No image with that name:(');
-          this.setState({ loading: false });
-          return;
-        }
-
-        this.setState(prevState => ({
-          images: page === 1 ? hits : [...prevState.images, ...hits],
-
-          totalHits: page === 1 ? totalHits - hits.length : totalHits - [...prevState.images, ...hits].length,
-        }));
-
-        this.setState({ loading: false });
-      } catch (error) {
-        Notiflix.Notify.warning(`Something went wrong! ${error}`);
+        Notiflix.Notify.info('No image with that name:(');
+        setLoading(false);
+        return;
       }
-    }
-}
 
-  handleFormSubmit = name => {
-    this.setState({name, page: 1})
+      setImages(prevState => page === 1 ? hits : [...prevState, ...hits]);
+      setTotalHits(prevState => page === 1 ? totalHits - hits.length :  prevState - hits.length);
+      setLoading(false);
+      };
+
+      apiData().catch((error) => {
+      Notiflix.Notify.warning(`Something went wrong! ${error}`);
+    });
+  }, [name, page])
+
+ const handleFormSubmit = name => {
+    setName(name);
+    setPage(1);
   }
 
-  loadMore = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-    }))
+ const loadMore = () => {
+    setPage(prevState => prevState + 1)
   };
-
-  render() {
-    const { loading, name, images, totalHits } = this.state;
 
     return (
       <div className="Conteiner">
-        <Searchbar onSubmit={this.handleFormSubmit}/>
+        <Searchbar onSubmit={handleFormSubmit}/>
         {loading && <Loader />} 
         {name ? 
         <ImageGallery images={images}/> :
         <p className="ImageGallery-text">Enter the name of the picture to search!</p>}
-        {totalHits > 0 && <Button loadMore={this.loadMore}/>}
+        {totalHits > 0 && <Button loadMore={loadMore}/>}
       </div>
     );
-  }
-
 };
